@@ -5,14 +5,14 @@
 -- A*寻路器
 local PathFinder = {}
 
-function PathFinder.findBeginBlock(actor,blocks,beforPath,isFly)
+function PathFinder.findBeginBlock(pos,blocks,beforPath,isFly)
 	if beforPath then
 		local point = beforPath:currentWayPoint()
 		if point then
 			return PathFinder.findClosetBlock(point,blocks,isFly)
 		end
 	end
-	return PathFinder.findClosetBlock(actor.pos,blocks,isFly)
+	return PathFinder.findClosetBlock(pos,blocks,isFly)
 end
 --找到离坐标最近的地块
 function PathFinder.findClosetBlock(pos,blocks,isFly)
@@ -104,7 +104,7 @@ end
 
 function PathFinder.calculate(beginPos,targetPos,blocks,isFly,beforePath)
 	--1.找到开始节点，以actor所在位置，寻找附近最近的节点block
-	local beginBlock = PathFinder.findBeginBlock(actor,blocks,beforePath,isFly)
+	local beginBlock = PathFinder.findBeginBlock(beginPos,blocks,beforePath,isFly)
 	--2.找到结束节点
 	local endBlock = PathFinder.findClosetBlock(targetPos,blocks,isFly)
 	--3.使用A*查找路线
@@ -122,7 +122,7 @@ function PathFinder.calculate(beginPos,targetPos,blocks,isFly,beforePath)
 		path:addWayPoint(block.pos)
 	end
 	--7.将最终的终点加入到Path里面
-	path:addWayPoint({x = targetX,y = targetY})
+	path:addWayPoint(targetPos)
 	return path
 end
 
