@@ -3,7 +3,7 @@
 -- Date: 2015-08-06 18:36:37
 --
 local Path = class("Path")
-Path.WayPointSeekDistSq = math.pow(20,2)
+Path.WayPointSeekDistSq = math.pow(30,2)
 function Path:ctor()
 	self.wayPoints_ = {}
 	self.curWayPointIndex_ = 1

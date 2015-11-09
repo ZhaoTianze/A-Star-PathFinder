@@ -16,30 +16,35 @@ function PathFinder.findBeginBlock(pos,blocks,beforPath,isFly)
 end
 --找到离坐标最近的地块
 function PathFinder.findClosetBlock(pos,blocks,isFly)
-	local actorWNum,actorHNum = pos.x/BattleCommonDefine.Room_Block_Width, pos.y/BattleCommonDefine.Room_Block_Width
+	local actorWNum = (pos.x+BattleCommonDefine.Room_Block_Width_Half)/BattleCommonDefine.Room_Block_Width
+	local actorHNum = (pos.y+BattleCommonDefine.Room_Block_Width_Half)/BattleCommonDefine.Room_Block_Width
 	local wNum = math.floor(actorWNum)
 	local hNum = math.floor(actorHNum)
 	if wNum ~= actorWNum or hNum ~= actorHNum  then
-		local distanceSqrt = 99999999999
-		local resultBlock
-		for addW=1,2 do
-			for addH=1,2 do
-				local w,h = wNum+(addW-1),hNum+(addH-1)
-				local blockName = string.format("%d_%d",w,h)
-				local block = blocks[blockName]
-				if block and (block.couldCross or isFly) then
-					local newDisSqrt = cc.pGetLengthSq(cc.pSub(block.pos,pos))
-					if distanceSqrt > newDisSqrt then
-						resultBlock = block
-						distanceSqrt = newDisSqrt
-					end
-				end
-			end
-		end
-		return resultBlock
+		return PathFinder.find_(wNum,hNum,blocks,pos)
 	else
 		return blocks[string.format("%d_%d",wNum,hNum)] 
 	end
+end
+--
+function PathFinder.find_(wNum,hNum,blocks,pos)
+	local distanceSqrt = 99999999999
+	local resultBlock
+	for addW=1,2 do
+		for addH=1,2 do
+			local w,h = wNum+(addW-1),hNum+(addH-1)
+			local blockName = string.format("%d_%d",w,h)
+			local block = blocks[blockName]
+			if block and (block.couldCross or isFly) then
+				local newDisSqrt = cc.pGetLengthSq(cc.pSub(block.pos,pos))
+				if distanceSqrt > newDisSqrt then
+					resultBlock = block
+					distanceSqrt = newDisSqrt
+				end
+			end
+		end
+	end
+	return resultBlock
 end
 --判断地块的可通过性
 function PathFinder.jugeNeighbor (w,h,nodes,neighbors,isFly)
@@ -97,8 +102,9 @@ function PathFinder.neighbors(theBlock,blocks,isFly)
 	end
 	--down-right
 	if right_down then
-		PathFinder.jugeNeighbor(theBlock.w-1,theBlock.h+1,blocks,neighbors,isFly)
+		PathFinder.jugeNeighbor(theBlock.w+1,theBlock.h-1,blocks,neighbors,isFly)
 	end
+
 	return neighbors
 end
 
@@ -108,7 +114,7 @@ function PathFinder.calculate(beginPos,targetPos,blocks,isFly,beforePath)
 	--2.找到结束节点
 	local endBlock = PathFinder.findClosetBlock(targetPos,blocks,isFly)
 	--3.使用A*查找路线
-	local blockPaths = AStar.path(beginBlock,endBlock,blocks,false,function(theBlock)
+	local blockPaths = AStar.path(beginBlock,endBlock,false,function(theBlock)
 		return PathFinder.neighbors(theBlock,blocks,isFly)
 	end)
 	--4.构建Path结构数据
@@ -116,7 +122,6 @@ function PathFinder.calculate(beginPos,targetPos,blocks,isFly,beforePath)
 		return nil -- A*寻路没有找到可用的路线
 	end
 	local path = Path.new()
-	
 	for i=1,#blockPaths do
 		local block = blockPaths[i]
 		path:addWayPoint(block.pos)
