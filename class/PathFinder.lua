@@ -4,7 +4,7 @@
 --
 -- A*寻路器
 local PathFinder = {}
-
+local Block_Width = 80
 function PathFinder.findBeginBlock(pos,blocks,beforPath,isFly)
 	if beforPath then
 		local point = beforPath:currentWayPoint()
@@ -16,8 +16,8 @@ function PathFinder.findBeginBlock(pos,blocks,beforPath,isFly)
 end
 --找到离坐标最近的地块
 function PathFinder.findClosetBlock(pos,blocks,isFly)
-	local actorWNum = (pos.x+BattleCommonDefine.Room_Block_Width_Half)/BattleCommonDefine.Room_Block_Width
-	local actorHNum = (pos.y+BattleCommonDefine.Room_Block_Width_Half)/BattleCommonDefine.Room_Block_Width
+	local actorWNum = (pos.x+BattleCommonDefine.Room_Block_Width_Half)/Block_Width
+	local actorHNum = (pos.y+BattleCommonDefine.Room_Block_Width_Half)/Block_Width
 	local wNum = math.floor(actorWNum)
 	local hNum = math.floor(actorHNum)
 	if wNum ~= actorWNum or hNum ~= actorHNum  then
